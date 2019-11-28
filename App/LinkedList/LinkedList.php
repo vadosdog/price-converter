@@ -10,7 +10,15 @@ class LinkedList implements \Iterator
 	 * @var Node[] $list
 	 */
 	protected $list = [];
+
+	/**
+	 * @var int $last - индекс последнего элемента
+	 */
 	protected $last = 0;
+
+	/**
+	 * @var int $iterator - индекс активного элемента
+	 */
 	protected $iterator = 0;
 
 	public function __construct($list = [])
@@ -20,22 +28,37 @@ class LinkedList implements \Iterator
 		}
 	}
 
+	/**
+	 * Получить текущее значение
+	 * @return mixed
+	 */
 	public function current()
 	{
 		return $this->list[$this->iterator] ?? [];
 	}
 
+	/**
+	 * Переключить итератор и получить значение
+	 * @return mixed
+	 */
 	public function next()
 	{
 		$this->iterator++;
 		return $this->current();
 	}
 
+	/**
+	 * Обновить итератор
+	 */
 	public function rewind()
 	{
 		$this->iterator = 0;
 	}
 
+	/**
+	 * Добавить элемент в конец списка
+	 * @param NodeInterface $node
+	 */
 	public function add(NodeInterface $node)
 	{
 		$lastNode = $this->list[$this->last] ?? null;
@@ -46,11 +69,21 @@ class LinkedList implements \Iterator
 		$this->list[] = $node;
 	}
 
+	/**
+	 * Получить значение итератора
+	 *
+	 * @return int
+	 */
 	public function key()
 	{
-		$this->iterator;
+		return $this->iterator;
 	}
 
+	/**
+	 * Проверить существование значения
+	 *
+	 * @return bool
+	 */
 	public function valid() {
 		return isset($this->list[$this->iterator]);
 	}

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Класс связывает цену и ссылки на ноды в связных списках
+ */
 
 namespace App\Price;
 
@@ -33,7 +36,7 @@ class PriceNode implements KnowAboutNode
 	 * @param string $listName
 	 * @return NodeInterface|null
 	 */
-	public function getNode(string $listName)
+	public function getNode(string $listName): ?NodeInterface
 	{
 		return $this->nodes[$listName] ?? null;
 	}

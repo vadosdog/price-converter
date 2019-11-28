@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Элемент связанного списка
+ */
+
 namespace App\LinkedList;
 
 use App\Interfaces\NodeInterface;
@@ -7,6 +11,10 @@ use App\Interfaces\NodeInterface;
 class Node implements NodeInterface
 {
 	protected $value;
+
+	/**
+	 * @var NodeInterface|null
+	 */
 	protected $next;
 	public function __construct($value, NodeInterface $next = null)
 	{
@@ -14,7 +22,7 @@ class Node implements NodeInterface
 		$this->next = $next;
 	}
 
-	public function next()
+	public function next(): ?NodeInterface
 	{
 		return $this->next;
 	}
