@@ -1,0 +1,126 @@
+<?php
+
+namespace App;
+
+use App\DateList\DateList;
+
+class Converter
+{
+	/**
+	 * @var DateList[]
+	 */
+	protected $lists_by_order_date = [];
+
+	/**
+	 * @var DateList[]
+	 */
+	protected $lists_by_delivery_date = [];
+
+	/**
+	 * @var array
+	 */
+	protected $position_ids = [];
+
+
+	/**
+	 * Принимает массив согласно ТЗ
+	 *
+	 * @param array $rows
+	 */
+	public function __construct(array $rows)
+	{
+		$lists_by_order_date = [];
+		$lists_by_delivery_date = [];
+		$position_ids = [];
+		foreach ($rows as $row) {
+			$price = new Price($row['position_id'], $row['order_date_from'], $row['delivery_date_from'], $row['price']);
+			$priceNode = new PriceNode($price);
+
+
+			$lists_by_order_date[$row['position_id']][$row['order_date_from']] = $priceNode;
+			$lists_by_delivery_date[$row['position_id']][$row['delivery_date_from']] = $priceNode;
+
+			$position_ids[$row['position_id']] = 1;
+		}
+
+		$this->position_ids = array_keys($position_ids);
+
+		foreach ($this->position_ids as $position_id) {
+			$list_by_order_date = $lists_by_order_date[$position_id];
+			$list_by_delivery_date = $lists_by_delivery_date[$position_id];
+
+			krsort($list_by_order_date);
+			ksort($list_by_delivery_date);
+
+			$this->lists_by_order_date[$position_id] = new DateList('order', $list_by_order_date);
+			$this->lists_by_delivery_date[$position_id] = new DateList('delivery', $list_by_delivery_date);
+		}
+	}
+
+	/**
+	 *
+	 * Метод конвертирует данные в вид согласно ТЗ
+	 *
+	 * @return array
+	 */
+	public function getOutput(): array
+	{
+		$result = [];
+		foreach ($this->position_ids as $position_id) {
+			$list_by_delivery_date = $this->lists_by_delivery_date[$position_id];
+			foreach ($list_by_delivery_date as $node) {
+				/** @var PriceNode $currentPriceNode */
+				$currentPriceNode = $node->getValue();
+				$currentPrice = $currentPriceNode->getPrice();
+				$row = $this->generateRow($currentPrice);
+
+
+				if ($next = $node->next()) {
+					/** @var PriceNode $nextDeliveryDateNode */
+					$nextDeliveryDateNode = $next->getValue();
+					if ($nextDeliveryDateNode) {
+						$nextDeliveryDate = $nextDeliveryDateNode->getPrice();
+						$row['delivery_date_to'] = $nextDeliveryDate->delivery_date_from;
+					}
+				}
+
+				$result[] = $row;
+
+				if ($currentOrderNode = $currentPriceNode->getNode('order')) {
+					$nextOrderNode = $currentOrderNode;
+					while ($nextOrderNode = $nextOrderNode->next()) {
+						/** @var PriceNode $nextOrderPriceNode */
+						$nextOrderPriceNode = $nextOrderNode->getValue();
+						$nextOrderPrice = $nextOrderPriceNode->getPrice();
+						if ($nextOrderPrice->delivery_date_from < $currentPrice->delivery_date_from) {
+							$result[] = [
+								'position_id' => $currentPrice->position_id,
+								'order_date_from' => $nextOrderPrice->order_date_from,
+								'order_date_to' => $currentPrice->order_date_from,
+								'delivery_date_from' => $currentPrice->delivery_date_from,
+								'delivery_date_to' => $currentPrice->delivery_date_to,
+								'price' => $nextOrderPrice->price,
+							];
+						}
+					}
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	protected function generateRow(Price $price)
+	{
+		return [
+			'position_id' => $price->position_id,
+			'order_date_from' => $price->order_date_from,
+			'order_date_to' => $price->order_date_to,
+			'delivery_date_from' => $price->delivery_date_from,
+			'delivery_date_to' => $price->order_date_to,
+			'price' => $price->price,
+		];
+	}
+
+}
+

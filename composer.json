@@ -1,0 +1,22 @@
+{
+	"autoload": {
+		"psr-4": {
+			"App\\": "App"
+		}
+	},
+	"kek": {
+		"address_id": 1,
+		"car_model": 1,
+		"car_number": "A123AA123",
+		"comment": "Comment",
+		"date_expires": "2019-11-28 16:25:00",
+		"date_start": "2019-11-27 16:26:00",
+		"guest_type": 0,
+		"is_cargo": 1,
+		"is_delivery": 1,
+		"is_foreign_number": 1,
+		"is_taxi": 1,
+		"pass_type": 4,
+		"tenant_id": 1
+	}
+}
