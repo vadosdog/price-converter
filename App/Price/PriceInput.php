@@ -1,10 +1,10 @@
 <?php
 
 
-namespace App;
+namespace App\Price;
 
 
-class Price
+class PriceInput
 {
 	public $position_id;
 	public $order_date_from;

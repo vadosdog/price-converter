@@ -1,10 +1,10 @@
 <?php
 
-namespace App\DateList;
+namespace App\LinkedList;
 
-use App\Interfaces\KnowAboutNode;
+use App\Interfaces\NodeInterface;
 
-class DateList implements \Iterator
+class LinkedList implements \Iterator
 {
 	/**
 	 * @var Node[] $list
@@ -12,11 +12,9 @@ class DateList implements \Iterator
 	protected $list = [];
 	protected $last = 0;
 	protected $iterator = 0;
-	protected $listName;
 
-	public function __construct($listName, $list = [])
+	public function __construct($list = [])
 	{
-		$this->listName = $listName;
 		foreach ($list as $item) {
 			$this->add($item);
 		}
@@ -38,19 +36,14 @@ class DateList implements \Iterator
 		$this->iterator = 0;
 	}
 
-	public function add($value)
+	public function add(NodeInterface $node)
 	{
-		$node = new Node($value);
 		$lastNode = $this->list[$this->last] ?? null;
 		if ($lastNode) {
 			$lastNode->setNext($node);
 			$this->last++;
 		}
 		$this->list[] = $node;
-
-		if ($value instanceof KnowAboutNode) {
-			$value->setNode($this->listName, $node);
-		}
 	}
 
 	public function key()

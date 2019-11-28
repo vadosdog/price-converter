@@ -1,43 +1,44 @@
 <?php
 
 
-namespace App;
+namespace App\Price;
 
 
-use App\DateList\Node;
 use App\Interfaces\KnowAboutNode;
+use App\Interfaces\NodeInterface;
 
 class PriceNode implements KnowAboutNode
 {
 	/**
-	 * @var Node[]
+	 * @var NodeInterface[]
 	 */
 	protected $nodes;
+
 	/**
-	 * @var Price
+	 * @var PriceInput
 	 */
 	protected $price;
 
-	public function __construct(Price $price)
+	public function __construct(PriceInput $price)
 	{
 		$this->price = $price;
 	}
 
-	public function setNode(string $listName, Node $node)
+	public function setNode(string $listName, NodeInterface $node)
 	{
 		$this->nodes[$listName] = $node;
 	}
 
 	/**
 	 * @param string $listName
-	 * @return Node|null
+	 * @return NodeInterface|null
 	 */
 	public function getNode(string $listName)
 	{
 		return $this->nodes[$listName] ?? null;
 	}
 
-	public function getPrice()
+	public function getPrice(): PriceInput
 	{
 		return $this->price;
 	}

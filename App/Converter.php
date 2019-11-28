@@ -2,17 +2,20 @@
 
 namespace App;
 
-use App\DateList\DateList;
+use App\LinkedList\DateListFactory;
+use App\LinkedList\LinkedList;
+use App\Price\PriceInput;
+use App\Price\PriceNode;
 
 class Converter
 {
 	/**
-	 * @var DateList[]
+	 * @var LinkedList[]
 	 */
 	protected $lists_by_order_date = [];
 
 	/**
-	 * @var DateList[]
+	 * @var LinkedList[]
 	 */
 	protected $lists_by_delivery_date = [];
 
@@ -33,7 +36,7 @@ class Converter
 		$lists_by_delivery_date = [];
 		$position_ids = [];
 		foreach ($rows as $row) {
-			$price = new Price($row['position_id'], $row['order_date_from'], $row['delivery_date_from'], $row['price']);
+			$price = new PriceInput($row['position_id'], $row['order_date_from'], $row['delivery_date_from'], $row['price']);
 			$priceNode = new PriceNode($price);
 
 
@@ -52,8 +55,8 @@ class Converter
 			krsort($list_by_order_date);
 			ksort($list_by_delivery_date);
 
-			$this->lists_by_order_date[$position_id] = new DateList('order', $list_by_order_date);
-			$this->lists_by_delivery_date[$position_id] = new DateList('delivery', $list_by_delivery_date);
+			$this->lists_by_order_date[$position_id] = DateListFactory::build('order', $list_by_order_date);
+			$this->lists_by_delivery_date[$position_id] = DateListFactory::build('delivery', $list_by_delivery_date);
 		}
 	}
 
@@ -110,7 +113,7 @@ class Converter
 		return $result;
 	}
 
-	protected function generateRow(Price $price)
+	protected function generateRow(PriceInput $price)
 	{
 		return [
 			'position_id' => $price->position_id,

@@ -1,12 +1,14 @@
 <?php
 
-namespace App\DateList;
+namespace App\LinkedList;
 
-class Node
+use App\Interfaces\NodeInterface;
+
+class Node implements NodeInterface
 {
 	protected $value;
 	protected $next;
-	public function __construct($value, Node $next = null)
+	public function __construct($value, NodeInterface $next = null)
 	{
 		$this->value = $value;
 		$this->next = $next;
@@ -17,7 +19,7 @@ class Node
 		return $this->next;
 	}
 
-	public function setNext(Node $node)
+	public function setNext(NodeInterface $node)
 	{
 		$this->next = $node;
 	}
