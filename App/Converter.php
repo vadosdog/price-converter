@@ -4,8 +4,11 @@ namespace App;
 
 use App\LinkedList\DateListFactory;
 use App\LinkedList\LinkedList;
+use App\Output\CollectionResource;
+use App\Output\PriceResource;
 use App\Price\PriceInput;
 use App\Price\PriceNode;
+use Exception;
 
 class Converter
 {
@@ -65,17 +68,18 @@ class Converter
 	 * Метод конвертирует данные в вид согласно ТЗ
 	 *
 	 * @return array
+	 * @throws Exception
 	 */
 	public function getOutput(): array
 	{
-		$result = [];
+		$result = new CollectionResource();
 		foreach ($this->position_ids as $position_id) {
 			$list_by_delivery_date = $this->lists_by_delivery_date[$position_id];
 			foreach ($list_by_delivery_date as $node) {
 				/** @var PriceNode $currentPriceNode */
 				$currentPriceNode = $node->getValue();
 				$currentPrice = $currentPriceNode->getPrice();
-				$row = $this->generateRow($currentPrice);
+				$row = PriceResource::createByInput($currentPrice);
 
 
 				if ($next = $node->next()) {
@@ -83,11 +87,11 @@ class Converter
 					$nextDeliveryDateNode = $next->getValue();
 					if ($nextDeliveryDateNode) {
 						$nextDeliveryDate = $nextDeliveryDateNode->getPrice();
-						$row['delivery_date_to'] = $nextDeliveryDate->delivery_date_from;
+						$row->setDeliveryDateTo($nextDeliveryDate->delivery_date_from);
 					}
 				}
 
-				$result[] = $row;
+				$result->add($row);
 
 				if ($currentOrderNode = $currentPriceNode->getNode('order')) {
 					$nextOrderNode = $currentOrderNode;
@@ -96,21 +100,22 @@ class Converter
 						$nextOrderPriceNode = $nextOrderNode->getValue();
 						$nextOrderPrice = $nextOrderPriceNode->getPrice();
 						if ($nextOrderPrice->delivery_date_from < $currentPrice->delivery_date_from) {
-							$result[] = [
-								'position_id' => $currentPrice->position_id,
-								'order_date_from' => $nextOrderPrice->order_date_from,
-								'order_date_to' => $currentPrice->order_date_from,
-								'delivery_date_from' => $currentPrice->delivery_date_from,
-								'delivery_date_to' => $currentPrice->delivery_date_to,
-								'price' => $nextOrderPrice->price,
-							];
+							$row = new PriceResource(
+								$currentPrice->position_id,
+								$nextOrderPrice->price,
+								$nextOrderPrice->order_date_from,
+								$currentPrice->delivery_date_from,
+								$currentPrice->order_date_from,
+								$currentPrice->delivery_date_to
+							);
+							$result->add($row);
 						}
 					}
 				}
 			}
 		}
 
-		return $result;
+		return $result->toArray();
 	}
 
 	protected function generateRow(PriceInput $price)
