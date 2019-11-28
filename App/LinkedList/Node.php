@@ -16,6 +16,12 @@ class Node implements NodeInterface
 	 * @var NodeInterface|null
 	 */
 	protected $next;
+
+	/**
+	 * @var NodeInterface|null
+	 */
+	protected $prev
+	;
 	public function __construct($value, NodeInterface $next = null)
 	{
 		$this->value = $value;
@@ -30,6 +36,16 @@ class Node implements NodeInterface
 	public function setNext(NodeInterface $node)
 	{
 		$this->next = $node;
+	}
+
+	public function prev(): ?NodeInterface
+	{
+		return $this->prev;
+	}
+
+	public function setPrev(NodeInterface $node)
+	{
+		$this->prev = $node;
 	}
 
 	public function getValue()

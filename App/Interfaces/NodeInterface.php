@@ -20,5 +20,9 @@ interface NodeInterface
 	 */
 	public function setNext(NodeInterface $node);
 
+	public function prev(): ?NodeInterface;
+
+	public function setPrev(NodeInterface $node);
+
 	public function getValue();
 }

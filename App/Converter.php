@@ -124,6 +124,15 @@ class Converter
 						$nextOrderPriceNode = $nextOrderNode->getValue();
 						$nextOrderPrice = $nextOrderPriceNode->getPrice();
 
+						$prev = $nextOrderNode->prev();
+						$orderDateTo = $currentPrice->delivery_date_to;
+						if ($prev) {
+							/** @var PriceNode $prevOrderPriceNode */
+							$prevOrderPriceNode = $prev->getValue();
+							$prevOrderPrice = $prevOrderPriceNode->getPrice();
+							$prevOrderPrice->delivery_date_to;
+						}
+
 						/*
 						 * Если delivery_date_from раньше текущей, добавляем еще одну строку
 						 */
@@ -134,7 +143,7 @@ class Converter
 								$nextOrderPrice->order_date_from,
 								$currentPrice->delivery_date_from,
 								$currentPrice->order_date_from,
-								$currentPrice->delivery_date_to
+								$orderDateTo
 							);
 							$result->add($row);
 						}
