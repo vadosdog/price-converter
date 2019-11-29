@@ -8,6 +8,7 @@ namespace App;
 
 use App\LinkedList\DateListFactory;
 use App\LinkedList\LinkedList;
+use App\LinkedList\Node;
 use App\Output\CollectionResource;
 use App\Output\PriceResource;
 use App\Price\PriceInput;
@@ -154,9 +155,9 @@ class Converter
 
 						$prevOrderPriceFrom = null;
 
-						/** @var PriceNode $prevNode */
-						$prevNode = $nextOrderNode->findPrev(function (PriceNode $item) use ($nextOrderPrice) {
-							return $item->getPrice()->order_date_from > $nextOrderPrice->order_date_from;
+						$prevNode = $nextOrderNode->findPrev(function (Node $item) use ($nextOrderPrice) {
+							$priceNode = $item->getValue();
+							return $priceNode->getPrice()->order_date_from > $nextOrderPrice->order_date_from;
 						});
 
 
@@ -168,7 +169,7 @@ class Converter
 							&& $prevNode
 							&& $nextOrderPrice->order_date_from !== $row->getOrderDateFrom()
 						) {
-							$prevOrderPriceFrom = $prevNode->getPrice()->order_date_from;
+							$prevOrderPriceFrom = $prevNode->getValue()->getPrice()->order_date_from;
 
 
 							$additionalRow = new PriceResource(

@@ -66,14 +66,14 @@ class Node implements NodeInterface
 		return null;
 	}
 
-	public function findPrev(\Closure $closure)
+	public function findPrev(\Closure $closure): ?NodeInterface
 	{
 		$current = $this;
 
 		while ($current = $current->prev()) {
-			$result = $closure($current->getValue());
+			$result = $closure($current);
 			if ($result) {
-				return $current->getValue();
+				return $current;
 			}
 		}
 		return null;

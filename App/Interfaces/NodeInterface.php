@@ -26,7 +26,7 @@ interface NodeInterface
 
 	public function getValue();
 
-	public function findNext(\Closure $closure);
+	public function findNext(\Closure $closure): ?NodeInterface;
 
-	public function findPrev(\Closure $closure);
+	public function findPrev(\Closure $closure): ?NodeInterface;
 }
