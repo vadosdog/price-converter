@@ -34,11 +34,57 @@ $input2 = [
 	['position_id' => 1, 'order_date_from' => '2019-05-01', 'delivery_date_from' => '2019-07-22', 'price' => 140]
 ];
 
+$input3 = [
+	['position_id' => 1, 'order_date_from' => '2018-08-01', 'delivery_date_from' => '2018-08-01', 'price' => 300],
+	['position_id' => 1, 'order_date_from' => '2018-08-03', 'delivery_date_from' => '2018-08-03', 'price' => 140],
+	['position_id' => 1, 'order_date_from' => '2018-08-05', 'delivery_date_from' => '2018-08-05', 'price' => 315],
+	['position_id' => 1, 'order_date_from' => '2018-08-07', 'delivery_date_from' => '2018-08-07', 'price' => 315],
+	['position_id' => 1, 'order_date_from' => '2018-08-07', 'delivery_date_from' => '2018-08-09', 'price' => 170],
+	['position_id' => 1, 'order_date_from' => '2018-08-07', 'delivery_date_from' => '2018-08-11', 'price' => 170],
+	['position_id' => 1, 'order_date_from' => '2018-08-03', 'delivery_date_from' => '2018-08-13', 'price' => 170],
+	['position_id' => 1, 'order_date_from' => '2018-08-07', 'delivery_date_from' => '2018-08-15', 'price' => 140]
+];
+
 //$converter = new \App\Converter($input);
-$converter = new \App\Converter($input2);
+//$converter = new \App\Converter($input2);
+$converter = new \App\Converter($input3);
 
 
 $ouput = $converter->getOutput();
+
+
+$duplicate = [];
+$notfound = [];
+$orderEnd = new DateTime('2018-08-08');
+$deliveryEnd = new DateTime('2018-08-15');
+$interval = DateInterval::createfromdatestring('+1 day');
+for ($orderDate = new DateTime('2018-08-01'); $orderDate < $orderEnd; $orderDate->add($interval)) {
+	for ($deliveryDate = new DateTime('2018-08-01'); $deliveryDate < $deliveryEnd; $deliveryDate->add($interval)) {
+		$orderDateFormatted = $orderDate->format('Y-m-d');
+		$deliveryDateFormatted = $deliveryDate->format('Y-m-d');
+		$result = array_filter($ouput, function ($item) use ($orderDateFormatted, $deliveryDateFormatted) {
+			return $item['order_date_from'] <= $orderDateFormatted
+				&& (!$item['order_date_to'] || $item['order_date_to'] >= $orderDateFormatted)
+				&& $item['delivery_date_from'] <= $deliveryDateFormatted
+				&& (!$item['delivery_date_to'] || $item['delivery_date_to'] >= $deliveryDateFormatted)
+				;
+		});
+		if (count($result) === 1) {
+			continue;
+		}
+
+		if (!$result) {
+			$notfound[] = [$orderDateFormatted, $deliveryDateFormatted];
+		} else {
+			$duplicate[] = [$orderDateFormatted, $deliveryDateFormatted];
+		}
+	}
+}
+var_dump($notfound, $duplicate);
+
+
+
+
 
 
 
