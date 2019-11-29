@@ -95,6 +95,7 @@ class Converter
 			 */
 			foreach ($list_by_delivery_date as $node) {
 				/** @var PriceNode $currentPriceNode */
+
 				$currentPriceNode = $node->getValue();
 				$currentPrice = $currentPriceNode->getPrice();
 				$row = PriceResource::createByInput($currentPrice);
@@ -124,28 +125,19 @@ class Converter
 						$nextOrderPriceNode = $nextOrderNode->getValue();
 						$nextOrderPrice = $nextOrderPriceNode->getPrice();
 
-						$prev = $nextOrderNode->prev();
-						$orderDateTo = $currentPrice->delivery_date_to;
-						if ($prev) {
-							/** @var PriceNode $prevOrderPriceNode */
-							$prevOrderPriceNode = $prev->getValue();
-							$prevOrderPrice = $prevOrderPriceNode->getPrice();
-							$prevOrderPrice->delivery_date_to;
-						}
-
 						/*
 						 * Если delivery_date_from раньше текущей, добавляем еще одну строку
 						 */
-						if ($nextOrderPrice->delivery_date_from < $currentPrice->delivery_date_from) {
-							$row = new PriceResource(
-								$currentPrice->position_id,
+						if ($nextOrderPrice->delivery_date_from <= $currentPrice->delivery_date_from) {
+							$additionalRow = new PriceResource(
+								$position_id,
 								$nextOrderPrice->price,
 								$nextOrderPrice->order_date_from,
-								$currentPrice->delivery_date_from,
+								$row->getDeliveryDateFrom(),
 								$currentPrice->order_date_from,
-								$orderDateTo
+								$row->getDeliveryDateTo()
 							);
-							$result->add($row);
+							$result->add($additionalRow);
 						}
 					}
 				}
