@@ -25,4 +25,8 @@ interface NodeInterface
 	public function setPrev(NodeInterface $node);
 
 	public function getValue();
+
+	public function findNext(\Closure $closure);
+
+	public function findPrev(\Closure $closure);
 }

@@ -152,20 +152,34 @@ class Converter
 						$nextOrderPriceNode = $nextOrderNode->getValue();
 						$nextOrderPrice = $nextOrderPriceNode->getPrice();
 
+						$prevOrderPriceFrom = null;
+
+						/** @var PriceNode $prevNode */
+						$prevNode = $nextOrderNode->findPrev(function (PriceNode $item) use ($nextOrderPrice) {
+							return $item->getPrice()->order_date_from > $nextOrderPrice->order_date_from;
+						});
+
+
 						/*
 						 * Если delivery_date_from раньше текущей, добавляем еще одну строку
 						 */
-						if ($nextOrderPrice->delivery_date_from <= $currentPrice->delivery_date_from) {
-							/** @var PriceNode $prevOrderPriceNode */
-							$prevOrderPriceNode = $nextOrderNode->prev()->getValue();
+						if (
+							$nextOrderPrice->delivery_date_from <= $currentPrice->delivery_date_from
+							&& $prevNode
+						) {
+
+							$prevOrderPriceFrom = $prevNode->getPrice()->order_date_from;
+
+
 							$additionalRow = new PriceResource(
 								$position_id,
 								$nextOrderPrice->price,
 								$nextOrderPrice->order_date_from,
 								$row->getDeliveryDateFrom(),
-								$prevOrderPriceNode->getPrice()->order_date_from,
+								$prevOrderPriceFrom,
 								null
 							);
+
 							if ($row->getDeliveryDateTo()) {
 								$additionalRow->setConvertedDeliveryDateTo($row->getDeliveryDateTo());
 							}

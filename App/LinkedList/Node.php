@@ -52,4 +52,30 @@ class Node implements NodeInterface
 	{
 		return $this->value;
 	}
+
+	public function findNext(\Closure $closure): ?NodeInterface
+	{
+		$current = $this;
+
+		while ($current->next()) {
+			$result = $closure($current);
+			if ($result) {
+				return $current;
+			}
+		}
+		return null;
+	}
+
+	public function findPrev(\Closure $closure)
+	{
+		$current = $this;
+
+		while ($current = $current->prev()) {
+			$result = $closure($current->getValue());
+			if ($result) {
+				return $current->getValue();
+			}
+		}
+		return null;
+	}
 }

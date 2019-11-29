@@ -123,6 +123,15 @@ class PriceResource implements ResourceInterface
 		return $this->delivery_date_from;
 	}
 
+
+	/**
+	 * @return string
+	 */
+	public function getOrderDateFrom()
+	{
+		return $this->order_date_from;
+	}
+
 	/**
 	 * @return string
 	 */
@@ -131,10 +140,16 @@ class PriceResource implements ResourceInterface
 		return $this->delivery_date_to;
 	}
 
+	/**
+	 * @return string
+	 */
+	public function getOrderDateTo()
+	{
+		return $this->order_date_to;
+	}
+
 	//setOrderDateFrom
 	//setDeliveryDateFrom
-	//getOrderDateFrom
-	//getOrderDateTo
 
 	public function toArray(): array
 	{
