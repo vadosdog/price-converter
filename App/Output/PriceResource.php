@@ -96,6 +96,24 @@ class PriceResource implements ResourceInterface
 		$this->delivery_date_to = $this->convertDateTo($dateTo);
 	}
 
+	/**
+	 * @param string $dateTo
+	 * @throws Exception
+	 */
+	public function setConvertedOrderDateTo(string $dateTo)
+	{
+		$this->order_date_to = $dateTo;
+	}
+
+	/**
+	 * @param string $dateTo
+	 * @throws Exception
+	 */
+	public function setConvertedDeliveryDateTo(string $dateTo)
+	{
+		$this->delivery_date_to = $dateTo;
+	}
+
 
 	/**
 	 * @return string

@@ -65,6 +65,7 @@ class LinkedList implements \Iterator
 		if ($lastNode) {
 			$lastNode->setNext($node);
 			$this->last++;
+			$node->setPrev($lastNode);
 		}
 		$this->list[] = $node;
 	}

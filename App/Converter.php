@@ -129,14 +129,19 @@ class Converter
 						 * Если delivery_date_from раньше текущей, добавляем еще одну строку
 						 */
 						if ($nextOrderPrice->delivery_date_from <= $currentPrice->delivery_date_from) {
+							/** @var PriceNode $prevOrderPriceNode */
+							$prevOrderPriceNode = $nextOrderNode->prev()->getValue();
 							$additionalRow = new PriceResource(
 								$position_id,
 								$nextOrderPrice->price,
 								$nextOrderPrice->order_date_from,
 								$row->getDeliveryDateFrom(),
-								$currentPrice->order_date_from,
-								$row->getDeliveryDateTo()
+								$prevOrderPriceNode->getPrice()->order_date_from,
+								null
 							);
+							if ($row->getDeliveryDateTo()) {
+								$additionalRow->setConvertedDeliveryDateTo($row->getDeliveryDateTo());
+							}
 							$result->add($additionalRow);
 						}
 					}
