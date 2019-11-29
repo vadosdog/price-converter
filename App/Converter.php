@@ -52,8 +52,8 @@ class Converter
 			$priceNode = new PriceNode($price);
 
 
-			$lists_by_order_date[$row['position_id']][$row['order_date_from']] = $priceNode;
-			$lists_by_delivery_date[$row['position_id']][$row['delivery_date_from']] = $priceNode;
+			$lists_by_order_date[$row['position_id']][] = $priceNode;
+			$lists_by_delivery_date[$row['position_id']][] = $priceNode;
 
 			$position_ids[$row['position_id']] = 1;
 		}
@@ -67,8 +67,35 @@ class Converter
 			$list_by_order_date = $lists_by_order_date[$position_id];
 			$list_by_delivery_date = $lists_by_delivery_date[$position_id];
 
-			krsort($list_by_order_date);
-			ksort($list_by_delivery_date);
+			usort($list_by_order_date, function (PriceNode $a_node, PriceNode $b_node) {
+				$a = $a_node->getPrice();
+				$b = $b_node->getPrice();
+				$a_order_date = $a->order_date_from;
+				$b_order_date = $b->order_date_from;
+				$a_delivery_date = $a->delivery_date_from;
+				$b_delivery_date = $b->delivery_date_from;
+
+				if ($a_order_date === $b_order_date) {
+					return $a_delivery_date > $b_delivery_date ? -1 : 1;
+				}
+				return $a_order_date > $b_order_date ? -1 : 1;
+
+			});
+
+			usort($list_by_delivery_date, function (PriceNode $a_node, PriceNode $b_node) {
+				$a = $a_node->getPrice();
+				$b = $b_node->getPrice();
+				$a_order_date = $a->order_date_from;
+				$b_order_date = $b->order_date_from;
+				$a_delivery_date = $a->delivery_date_from;
+				$b_delivery_date = $b->delivery_date_from;
+
+				if ($a_delivery_date === $b_delivery_date) {
+					return $a_order_date > $b_order_date ? 1 : -1;
+				}
+				return $a_delivery_date > $b_delivery_date ? 1 : -1;
+
+			});
 
 			$this->lists_by_order_date[$position_id] = DateListFactory::build('order', $list_by_order_date);
 			$this->lists_by_delivery_date[$position_id] = DateListFactory::build('delivery', $list_by_delivery_date);
@@ -125,20 +152,25 @@ class Converter
 						$nextOrderPriceNode = $nextOrderNode->getValue();
 						$nextOrderPrice = $nextOrderPriceNode->getPrice();
 
-						/** @var PriceNode $prevOrderPriceNode */
-						$prevOrderPriceNode = $nextOrderNode->prev()->getValue();
-						$additionalRow = new PriceResource(
-							$position_id,
-							$nextOrderPrice->price,
-							$nextOrderPrice->order_date_from,
-							$row->getDeliveryDateFrom(),
-							$prevOrderPriceNode->getPrice()->order_date_from,
-							null
-						);
-						if ($row->getDeliveryDateTo()) {
-							$additionalRow->setConvertedDeliveryDateTo($row->getDeliveryDateTo());
+						/*
+						 * Если delivery_date_from раньше текущей, добавляем еще одну строку
+						 */
+						if ($nextOrderPrice->delivery_date_from <= $currentPrice->delivery_date_from) {
+							/** @var PriceNode $prevOrderPriceNode */
+							$prevOrderPriceNode = $nextOrderNode->prev()->getValue();
+							$additionalRow = new PriceResource(
+								$position_id,
+								$nextOrderPrice->price,
+								$nextOrderPrice->order_date_from,
+								$row->getDeliveryDateFrom(),
+								$prevOrderPriceNode->getPrice()->order_date_from,
+								null
+							);
+							if ($row->getDeliveryDateTo()) {
+								$additionalRow->setConvertedDeliveryDateTo($row->getDeliveryDateTo());
+							}
+							$result->add($additionalRow);
 						}
-						$result->add($additionalRow);
 					}
 				}
 			}
