@@ -167,7 +167,8 @@ class Converter
 						if (
 							$nextOrderPrice->delivery_date_from <= $currentPrice->delivery_date_from
 							&& $prevNode
-							&& $nextOrderPrice->order_date_from !== $row->getOrderDateFrom()
+							&& $nextOrderPrice->order_date_from !== $row->getOrderDateFrom() //защита от дублей с текущим
+							&& (!$nextOrderNode->next() || $nextOrderPrice->order_date_from !== $nextOrderNode->next()->getValue()->getPrice()->order_date_from) //защита от дублей со соседними
 						) {
 							$prevOrderPriceFrom = $prevNode->getValue()->getPrice()->order_date_from;
 

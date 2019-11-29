@@ -58,8 +58,8 @@ $notfound = [];
 $orderEnd = new DateTime('2018-08-08');
 $deliveryEnd = new DateTime('2018-08-15');
 $interval = DateInterval::createfromdatestring('+1 day');
-for ($orderDate = new DateTime('2018-08-01'); $orderDate < $orderEnd; $orderDate->add($interval)) {
-	for ($deliveryDate = new DateTime('2018-08-01'); $deliveryDate < $deliveryEnd; $deliveryDate->add($interval)) {
+for ($orderDate = new DateTime('2018-08-01'); $orderDate <= $orderEnd; $orderDate->add($interval)) {
+	for ($deliveryDate = new DateTime('2018-08-01'); $deliveryDate <= $deliveryEnd; $deliveryDate->add($interval)) {
 		$orderDateFormatted = $orderDate->format('Y-m-d');
 		$deliveryDateFormatted = $deliveryDate->format('Y-m-d');
 		$result = array_filter($ouput, function ($item) use ($orderDateFormatted, $deliveryDateFormatted) {

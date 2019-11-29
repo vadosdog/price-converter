@@ -56,7 +56,6 @@ function echoTr($row)
 	echo '</tr>';
 }
 
-echo ' (order_date, delivery_date) 2018-08-01 и 2019-06-10';
 echo '<table border="1">';
 echoTr([
 	'position_id' => 'ID',
