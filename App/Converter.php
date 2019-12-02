@@ -122,6 +122,7 @@ class Converter
 			 * берем по порядку даты доставки
 			 */
 			foreach ($list_by_delivery_date as $node) {
+				/** @var Node $node */
 				/** @var PriceNode $currentPriceNode */
 
 				$currentPriceNode = $node->getValue();
@@ -142,52 +143,35 @@ class Converter
 
 				$result->add($row);
 
-				/*
-				 * Находим все date_order_from которые находятся левве текущей
-				 * * От if можно избавиться, должен всегда сработать
-				 */
-				if ($currentOrderNode = $currentPriceNode->getNode('order')) {
-					$nextOrderNode = $currentOrderNode;
-					while ($nextOrderNode = $nextOrderNode->next()) {
-						/** @var PriceNode $nextOrderPriceNode */
-						$nextOrderPriceNode = $nextOrderNode->getValue();
-						$nextOrderPrice = $nextOrderPriceNode->getPrice();
+				$prev = $node;
+				while ($prev = $prev->findPrev(function (Node $prevNode) use ($currentPrice) {
+					/** @var PriceNode $priceNode */
+					$priceNode = $prevNode->getValue();
+					/** @var PriceNode $orderNode */
+					$orderNode = $priceNode->getNode('order')->getValue();
+					$prevOrderPrice = $orderNode->getPrice();
+					return $prevOrderPrice->order_date_from < $currentPrice->order_date_from;
+				})) {
+					/** @var PriceNode $priceNode */
+					$priceNode = $prev->getValue();
+					/** @var PriceNode $orderNode */
+					$orderNode = $priceNode->getNode('order')->getValue();
+					$prevOrderPrice = $orderNode->getPrice();
 
-						$prevOrderPriceFrom = null;
+					$additionalRow = new PriceResource(
+						$position_id,
+						$prevOrderPrice->price,
+						$prevOrderPrice->order_date_from,
+						$row->getDeliveryDateFrom(),
+						$currentPrice->order_date_from,
+						null
+					);
 
-						$prevNode = $nextOrderNode->findPrev(function (Node $item) use ($nextOrderPrice) {
-							$priceNode = $item->getValue();
-							return $priceNode->getPrice()->order_date_from > $nextOrderPrice->order_date_from;
-						});
-
-
-						/*
-						 * Если delivery_date_from раньше текущей, добавляем еще одну строку
-						 */
-						if (
-							$nextOrderPrice->delivery_date_from <= $currentPrice->delivery_date_from
-							&& $prevNode
-							&& $nextOrderPrice->order_date_from !== $row->getOrderDateFrom() //защита от дублей с текущим
-							&& (!$nextOrderNode->next() || $nextOrderPrice->order_date_from !== $nextOrderNode->next()->getValue()->getPrice()->order_date_from) //защита от дублей со соседними
-						) {
-							$prevOrderPriceFrom = $prevNode->getValue()->getPrice()->order_date_from;
-
-
-							$additionalRow = new PriceResource(
-								$position_id,
-								$nextOrderPrice->price,
-								$nextOrderPrice->order_date_from,
-								$row->getDeliveryDateFrom(),
-								$prevOrderPriceFrom,
-								null
-							);
-
-							if ($row->getDeliveryDateTo()) {
-								$additionalRow->setConvertedDeliveryDateTo($row->getDeliveryDateTo());
-							}
-							$result->add($additionalRow);
-						}
+					if ($row->getDeliveryDateTo()) {
+						$additionalRow->setConvertedDeliveryDateTo($row->getDeliveryDateTo());
 					}
+					$result->add($additionalRow);
+					$currentPrice = $prevOrderPrice;
 				}
 			}
 		}

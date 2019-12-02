@@ -26,11 +26,11 @@ $input = [
 $input2 = [
 	['position_id' => 1, 'order_date_from' => '2018-08-01', 'delivery_date_from' => '2018-08-01', 'price' => 300],
 	['position_id' => 1, 'order_date_from' => '2018-09-01', 'delivery_date_from' => '2018-09-01', 'price' => 140],
-	['position_id' => 1, 'order_date_from' => '2018-09-01', 'delivery_date_from' => '2019-06-10', 'price' => 170],
 	['position_id' => 1, 'order_date_from' => '2018-12-25', 'delivery_date_from' => '2018-12-25', 'price' => 315],
 	['position_id' => 1, 'order_date_from' => '2019-05-01', 'delivery_date_from' => '2019-05-01', 'price' => 315],
 	['position_id' => 1, 'order_date_from' => '2019-05-01', 'delivery_date_from' => '2019-05-06', 'price' => 170],
 	['position_id' => 1, 'order_date_from' => '2019-05-01', 'delivery_date_from' => '2019-06-02', 'price' => 170],
+	['position_id' => 1, 'order_date_from' => '2018-09-01', 'delivery_date_from' => '2019-06-10', 'price' => 170],
 	['position_id' => 1, 'order_date_from' => '2019-05-01', 'delivery_date_from' => '2019-07-22', 'price' => 140]
 ];
 
@@ -46,8 +46,8 @@ $input3 = [
 ];
 
 //$converter = new \App\Converter($input);
-//$converter = new \App\Converter($input2);
-$converter = new \App\Converter($input3);
+$converter = new \App\Converter($input2);
+//$converter = new \App\Converter($input3);
 
 
 $ouput = $converter->getOutput();
@@ -112,7 +112,7 @@ echoTr([
 	'delivery_date_to' => 'delivery_date_to',
 	'price' => 'price',
 ]);
-foreach ($converter->getOutput() as $row) {
+foreach ($ouput as $row) {
 	echoTr($row);
 }
 echo '</table>';
