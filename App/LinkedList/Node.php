@@ -57,7 +57,8 @@ class Node implements NodeInterface
 	{
 		$current = $this;
 
-		while ($current->next()) {
+
+		while ($current = $current->next()) {
 			$result = $closure($current);
 			if ($result) {
 				return $current;
